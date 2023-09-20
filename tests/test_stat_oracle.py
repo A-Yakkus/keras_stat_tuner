@@ -11,4 +11,3 @@ def test_raise_error_if_no_estimator_oracle():
 def test_raise_error_if_no_estimator_tuner():
     with pytest.raises(ImplementationError):
         StatisticalSearch(estimator=None)
-

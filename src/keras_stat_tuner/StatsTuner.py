@@ -14,7 +14,7 @@ class ImplementationError(ValueError):
 
 
 class StatisticalOracle(Oracle):
-    """Oracle that uses a statistical model to optimise hpyerparameters.
+    """Oracle that uses a statistical model to optimise hyperparameters.
 
         Args:
             objective: A string, `keras_tuner.Objective` instance, or a list of
@@ -78,26 +78,25 @@ class StatisticalOracle(Oracle):
         self.estimator: Pipeline = estimator
         if self.estimator is None:
             raise ImplementationError("Estimator must be implemented")
-        self.same_flag = False
 
     def populate_space(self, trial_id):
         # Still in initial search
-        if int(trial_id)<self.initial_trials:
+        if int(trial_id) < self.initial_trials:
             values = self._random_values()
             if values is None:
                 return {"status": TrialStatus.STOPPED, "values": None}
             return {"status": TrialStatus.RUNNING, "values": values}
         else:
             # Found a large enough sample, lets get to nudging
-            X, y = self.build_estimator_training_data()
-            feature, coeffs, signal = self.find_most_significant_error(X, y)
+            x, y = self.build_estimator_training_data()
+            feature, co_effs, signal = self.find_most_significant_error(x, y)
             best_params = self.get_best_trials(1)[0].hyperparameters
             next_params = self.nudge(best_params, feature, signal)
             return {"status": TrialStatus.RUNNING, "values": next_params}
 
     def nudge(self, params: HyperParameters, feature: int, sign):
         new_params = copy.deepcopy(params.values)
-        key=list(params.values.keys())[feature]
+        key = list(params.values.keys())[feature]
         current_value = params.get(key)
         active_param = params.space[feature]
         if isinstance(active_param, Boolean):
@@ -123,14 +122,14 @@ class StatisticalOracle(Oracle):
 
     def find_most_significant_error(self, dataset, scores):
         self.estimator.fit(dataset, scores)
-        coeffs = []
+        co_effs = []
         for item in self.estimator.steps:
-            if hasattr(item[1], "coef_"):
-                coeffs.append(item[1].coef_)
-        average_coeffs = np.array(coeffs).mean(axis=0)
-        most_sig_feature = np.argmax(average_coeffs)
-        return (most_sig_feature, average_coeffs,
-                np.sign(average_coeffs[most_sig_feature]))
+            if hasattr(item[1], "coef_"): # noqa sklearn variable not recognised by IDE
+                co_effs.append(item[1].coef_)
+        average_co_effs = np.array(co_effs).mean(axis=0)
+        most_sig_feature = np.argmax(average_co_effs)
+        return (most_sig_feature, average_co_effs,
+                np.sign(average_co_effs[most_sig_feature]))
 
     def build_estimator_training_data(self):
         dataset = []
@@ -227,10 +226,3 @@ class StatisticalSearch(Tuner):
             max_consecutive_failed_trials=max_consecutive_failed_trials,
         )
         super().__init__(oracle, hypermodel, **kwargs)
-
-
-
-
-
-
-
