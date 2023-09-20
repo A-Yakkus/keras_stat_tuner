@@ -6,6 +6,9 @@ from keras_tuner.engine.trial import TrialStatus
 from sklearn.pipeline import Pipeline
 
 
+__all__ = ["ImplementationError", "StatisticalOracle", "StatisticalSearch"]
+
+
 class ImplementationError(ValueError):
     pass
 
@@ -22,7 +25,8 @@ class StatisticalOracle(Oracle):
                 maximize. The `objective` argument is optional when
                 `Tuner.run_trial()` or `HyperModel.fit()` returns a single float as
                 the objective to minimize.
-            initial_trials: Integer, the initial number of random trials to perform before tuning. Defaults to 10
+            initial_trials: Integer, the initial number of random trials to perform
+                before tuning. Defaults to 10
             max_trials: Integer, the total number of trials (model configurations)
                 to test at most. Note that the oracle may interrupt the search
                 before `max_trial` models have been tested if the search space has
@@ -100,9 +104,11 @@ class StatisticalOracle(Oracle):
             new_params[key] = not new_params[key]
         if isinstance(active_param, Float) or isinstance(active_param, Int):
             if sign == -1:
-                new_params[key] = min(new_params[key]+active_param.step, active_param.max_value)
+                new_params[key] = min(new_params[key]+active_param.step,
+                                      active_param.max_value)
             elif sign == 1:
-                new_params[key] = max(new_params[key]-active_param.step, active_param.min_value)
+                new_params[key] = max(new_params[key]-active_param.step,
+                                      active_param.min_value)
         if isinstance(active_param, Choice):
             index = active_param.values.index(current_value)
             if sign == -1:
@@ -110,7 +116,8 @@ class StatisticalOracle(Oracle):
             elif sign == 1:
                 new_params[key] = active_param.values[(index - 1) % 4]
         if new_params == params:
-            print("[WARNING]Coefficients of Estimator are the same as last time, adding a random search to offset this")
+            print("[WARNING]Coefficients of Estimator are the same as last time, "
+                  "adding a random search to offset this")
             new_params = self._random_values()
         return new_params
 
@@ -122,7 +129,8 @@ class StatisticalOracle(Oracle):
                 coeffs.append(item[1].coef_)
         average_coeffs = np.array(coeffs).mean(axis=0)
         most_sig_feature = np.argmax(average_coeffs)
-        return most_sig_feature, average_coeffs, np.sign(average_coeffs[most_sig_feature])
+        return (most_sig_feature, average_coeffs,
+                np.sign(average_coeffs[most_sig_feature]))
 
     def build_estimator_training_data(self):
         dataset = []
@@ -141,7 +149,8 @@ class StatisticalOracle(Oracle):
                     x_scaled = (x - mi) / (ma - mi)
                     row.append(float(x_scaled))
                 if isinstance(parameter, Choice):
-                    row.append(float(list(map(lambda c: c == space.get(parameter.name), parameter.values)).index(True)))
+                    row.append(float(list(map(lambda c: c == space.get(parameter.name),
+                                              parameter.values)).index(True)))
             dataset.append(row)
         return np.array(dataset), np.array(scores)
 
