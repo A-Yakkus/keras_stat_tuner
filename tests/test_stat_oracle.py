@@ -4,5 +4,9 @@ import pytest
 
 def test_raise_error_if_no_estimator_oracle():
     with pytest.raises(ImplementationError):
-        oracle = StatisticalOracle(estimator=None)
+        StatisticalOracle(estimator=None)
+
+def test_raise_error_if_no_estimator_tuner():
+    with pytest.raises(ImplementationError):
+        StatisticalSearch(estimator=None)
 
