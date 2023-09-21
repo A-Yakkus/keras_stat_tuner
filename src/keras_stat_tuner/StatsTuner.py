@@ -111,10 +111,12 @@ class StatisticalOracle(Oracle):
         if isinstance(active_param, Choice):
             index = active_param.values.index(current_value)
             if sign == -1:
-                new_params[key] = active_param.values[(index + 1) % 4]
+                new_params[key] = active_param.values[(index + 1) %
+                                                      len(active_param.values)]
             elif sign == 1:
-                new_params[key] = active_param.values[(index - 1) % 4]
-        if new_params == params:
+                new_params[key] = active_param.values[(index - 1) %
+                                                      len(active_param.values)]
+        if new_params == params.values:
             print("[WARNING]Coefficients of Estimator are the same as last time, "
                   "adding a random search to offset this")
             new_params = self._random_values()

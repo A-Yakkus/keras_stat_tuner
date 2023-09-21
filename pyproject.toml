@@ -28,3 +28,6 @@ classifiers = [
 addopts = [
     "--import-mode=importlib",
 ]
+filterwarnings =[
+    "ignore::DeprecationWarning:keras_tuner.*:"
+]

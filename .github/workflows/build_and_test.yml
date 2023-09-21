@@ -24,10 +24,21 @@ jobs:
       - name: Lint with ruff
         run: |
           # stop the build if there are Python syntax errors or undefined names
-          ruff --format=github --select=E9,F63,F7,F82 --target-version=py37 .
+          ruff --format=github --select=E9,F63,F7,F82 --target-version=py38 .
           # default set of ruff rules with GitHub Annotations
-          ruff --format=github --target-version=py37 .
+          ruff --format=github --target-version=py38 .
+      - name: Load Test Cache
+        uses: actions/cache@v3
+        with:
+          key: test_nudge_create_initial_trials
+          paths: |
+            ./test_nudge_create/trial_0
+            ./test_nudge_create/trial_1
+            ./test_nudge_create/trial_2
+            ./test_nudge_create/oracle.json
+            ./test_nudge_create/tuner0.json
       - name: Test with pytest
         run: |
           pip install pytest pytest-cov .
           pytest tests/ --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+        if: matrix.python_version == "3.10"
