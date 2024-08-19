@@ -26,7 +26,7 @@ jobs:
           # stop the build if there are Python syntax errors or undefined names
           ruff check --select E9,F63,F7,F82 --target-version py38 .
           # default set of ruff rules with GitHub Annotations
-          ruff check --target-version rupy38 .
+          ruff check --target-version py38 .
       - name: Test with pytest
         run: |
           pip install pytest pytest-cov .
